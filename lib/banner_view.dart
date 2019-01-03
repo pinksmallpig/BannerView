@@ -44,6 +44,9 @@ class BannerView extends StatefulWidget {
   final Curve curve;
   final ValueChanged onPageChanged;
   final bool log;
+  final double bannerHeight;
+  final double indicatorHeight;
+  final EdgeInsetsGeometry margin;
 
   BannerView(
     this.banners, {
@@ -63,6 +66,9 @@ class BannerView extends StatefulWidget {
     this.log = true,
     this.cornerRadius = 0,
     this.indicatorOverlay = true,
+    this.bannerHeight = 150.0,
+    this.indicatorHeight = 50.0,
+    this.margin,
   })  : assert(banners?.isNotEmpty ?? true),
         assert(null != indicatorMargin),
         assert(null != intervalDuration),
@@ -177,29 +183,33 @@ class _BannerViewState extends State<BannerView> {
 
   @override
   Widget build(BuildContext context) {
-    return this._generateBody();
+    return Container(
+      alignment: Alignment.center,
+      height: widget.bannerHeight + widget.indicatorHeight,
+      margin: widget.margin,
+      child: this._generateBody(),
+    );
   }
 
   /// compose the body, banner view and indicator view
   Widget _generateBody() {
-    var children = [
-      PhysicalModel(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(widget.cornerRadius),
-        clipBehavior: Clip.antiAlias,
-        elevation: 0.0,
-        child: this._renderBannerBody(),
-      ),
-      this._renderIndicator()
-    ];
+    var banner = PhysicalModel(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(widget.cornerRadius),
+      clipBehavior: Clip.antiAlias,
+      elevation: 0.0,
+      child: this._renderBannerBody(),
+    );
+    var indicator = this._renderIndicator();
     return widget.indicatorOverlay
         ? Stack(
-            children: children,
+            children: [banner, indicator],
           )
         : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: children,
+            children: [
+              SizedBox(height: widget.bannerHeight, child: banner),
+              indicator,
+            ],
           );
   }
 
@@ -329,6 +339,7 @@ class _BannerViewState extends State<BannerView> {
       indicatorNormal: this.widget.indicatorNormal,
       indicatorSelected: this.widget.indicatorSelected,
       indicatorMargin: this.widget.indicatorMargin,
+      height: this.widget.indicatorHeight,
     );
   }
 
