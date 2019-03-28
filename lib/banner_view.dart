@@ -8,8 +8,7 @@ import 'indicator/IndicatorWidget.dart';
 
 //indicator container builder
 ///[indicatorWidget] indicator widget, position the indicator widget into container
-typedef Widget IndicatorContainerBuilder(
-    BuildContext context, Widget indicatorWidget);
+typedef Widget IndicatorContainerBuilder(BuildContext context, Widget indicatorWidget);
 
 const String TAG = 'BannerView';
 
@@ -47,6 +46,7 @@ class BannerView extends StatefulWidget {
   final double bannerHeight;
   final double indicatorHeight;
   final EdgeInsetsGeometry margin;
+  final Alignment indicatorAlign;
 
   BannerView(
     this.banners, {
@@ -69,6 +69,7 @@ class BannerView extends StatefulWidget {
     this.bannerHeight = 150.0,
     this.indicatorHeight = 50.0,
     this.margin,
+    this.indicatorAlign,
   })  : assert(banners?.isNotEmpty ?? true),
         assert(null != indicatorMargin),
         assert(null != intervalDuration),
@@ -108,8 +109,7 @@ class _BannerViewState extends State<BannerView> {
     }
 
     this._duration = widget.intervalDuration;
-    this._pageController =
-        widget.controller ?? PageController(initialPage: this._currentIndex);
+    this._pageController = widget.controller ?? PageController(initialPage: this._currentIndex);
 
     this._nextBannerTask();
   }
@@ -203,6 +203,7 @@ class _BannerViewState extends State<BannerView> {
     var indicator = this._renderIndicator();
     return widget.indicatorOverlay
         ? Stack(
+            alignment: widget.indicatorAlign ?? Alignment.bottomCenter,
             children: [banner, indicator],
           )
         : Column(
@@ -232,8 +233,7 @@ class _BannerViewState extends State<BannerView> {
       controller: this._pageController,
       itemCount: this._banners.length,
       onPageChanged: (index) {
-        _Logger.d(
-            TAG, '**********   changed  index: $index  cu: $_currentIndex');
+        _Logger.d(TAG, '**********   changed  index: $index  cu: $_currentIndex');
         this._currentIndex = index;
         if (!(this._timer?.isActive ?? false)) {
           this._nextBannerTask();
@@ -287,13 +287,11 @@ class _BannerViewState extends State<BannerView> {
         this._cancel(manual: true);
       }
       if (depth == 0) {
-        _Logger.d(TAG,
-            '** countP: $_seriesUserScrollRecordCount  page: $page  , left: $left');
+        _Logger.d(TAG, '** countP: $_seriesUserScrollRecordCount  page: $page  , left: $left');
 
         if (left == 0) {
           if (_seriesUserScrollRecordCount != 0) {
-            _Logger.d(
-                TAG, '**********   ^^^^  用户手动滑动结束, at edge: ${pm.atEdge}');
+            _Logger.d(TAG, '**********   ^^^^  用户手动滑动结束, at edge: ${pm.atEdge}');
             setState(() {
               _seriesUserScrollRecordCount = 0;
               _canceledByManual = false;
@@ -329,8 +327,7 @@ class _BannerViewState extends State<BannerView> {
 
   /// indicator widget
   Widget _renderIndicator() {
-    int index =
-        widget.cycleRolling ? this._currentIndex - 1 : this._currentIndex;
+    int index = widget.cycleRolling ? this._currentIndex - 1 : this._currentIndex;
     index = index <= 0 ? 0 : index;
     return new IndicatorWidget(
       size: this._originBanners.length,
